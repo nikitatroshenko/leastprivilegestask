@@ -1,1 +1,6 @@
-# leastprivilegestask
+# Принцип наименьших привилегий
+### Лабораторная работа #3
+
+[[презентация 1]](https://www.dropbox.com/s/hwzyvp12a8vpfhk/%D0%9B%D0%B0%D0%B1%D0%BE%D1%80%D0%B0%D1%82%D0%BE%D1%80%D0%BD%D0%B0%D1%8F%20%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D0%B0%203.pptx?dl=0)
+
+_будет дополнено..._
