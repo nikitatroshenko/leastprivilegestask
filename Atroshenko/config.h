@@ -2,6 +2,7 @@
 #define SERVICETASK_CONFIG
 
 struct configuration {
+	short listen_port;
 	char *target_path;
 	char *log_path;
 };

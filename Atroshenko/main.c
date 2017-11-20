@@ -2,9 +2,11 @@
 #include "config.h"
 #include "daemonize.h"
 #include "listen_changes.h"
+#include "interface_listener.h"
 
 #include <errno.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <openssl/md5.h>
 #include <string.h>
 #include <time.h>
@@ -18,47 +20,22 @@ struct file_change_handling_data {
 	FILE *target;
 };
 
-static int get_file_md5(FILE *in, unsigned char *digest);
-static void bytes_to_hex_str(unsigned char *bytes, size_t len, char *buf);
+static struct configuration *resolve_config(int argc, char **argv);
+
 static void log_record(FILE *out, const char *record);
 static void file_change_handling_routine(void *data);
+static void iface_listener_routine(void *data);
 
-int main(int argc, char const **argv)
+int main(int argc, char **argv)
 {
-	size_t i;	/* loop counter */
 	struct file_change_handling_data routine_data;
 	struct listen_ctx *listen_ctx;
+	struct listener_startup_info if_startup_info;
 	struct configuration *conf = NULL;
-	size_t config_arg = -1;
 
 	go_background();
 
-	for (i = 0; i < argc; i++) {
-		fprintf(stderr, "Argument '%s'\n", argv[i]);
-		if (!strncmp(CONFIG_ARG, argv[i], strlen(CONFIG_ARG)))
-			config_arg = i + 1;
-	}
-
-	fprintf(stderr, "Config arg: %d\n", config_arg);
-
-	if (config_arg < argc) {
-		fprintf(stderr, "loading config %s\n", argv[1]);
-		conf = load_config(argv[config_arg]);	
-	} else {
-		fprintf(stderr, "loading default config\n");
-		conf = load_default_config();
-	}
-
-	fprintf(stderr, "Loaded\n");
-	fprintf(stderr, "Read config: log_path=%s\ntarget_path=%s\n", conf->log_path, conf->target_path);
-
-	if (conf == NULL || conf->log_path == NULL
-			|| conf->target_path == NULL) {
-
-		log_error();
-		fprintf(stderr, "Config is null\n");
-		return errno;
-	}
+	conf = resolve_config(argc, argv);
 
 	routine_data.log = fopen(conf->log_path, "at");
 	routine_data.target = fopen(conf->target_path, "rt");
@@ -72,14 +49,15 @@ int main(int argc, char const **argv)
 		return errno;
 	}
 
-	fprintf(stderr, "Starting listen\n");
+	fprintf(stderr, "Started listening file changes\n");
 
 	listen_ctx = start_listen_changes(
 			conf->target_path,
 			file_change_handling_routine,
 			&routine_data);
 
-	while (1) {}
+
+	start_listen_connections(&if_startup_info);
 
 	fprintf(stderr, "Stopping listen\n");
 	stop_listen_changes(listen_ctx);
@@ -88,6 +66,47 @@ int main(int argc, char const **argv)
 	fprintf(stderr, "Exiting\n");
 
 	return 0;
+}
+
+struct configuration *resolve_config(int argc, char **argv)
+{
+	size_t i;
+	size_t config_arg = argc;
+	struct configuration *conf;
+
+	for (i = 0; i < argc; i++) {
+		fprintf(stderr, "Argument '%s'\n", argv[i]);
+		if (!strncmp(CONFIG_ARG, argv[i], strlen(CONFIG_ARG)))
+			config_arg = i + 1;
+	}
+
+	fprintf(stderr, "Config arg: %lu\n", config_arg);
+
+	if (config_arg < argc) {
+		fprintf(stderr, "loading config %s\n", argv[config_arg]);
+		conf = load_config(argv[config_arg]);	
+	} else {
+		fprintf(stderr, "loading default config\n");
+		conf = load_default_config();
+	}
+
+	if (conf == NULL || conf->log_path == NULL
+			|| conf->target_path == NULL) {
+
+		log_error();
+		fprintf(stderr, "Failed to load configuration\n");
+		exit(errno);
+	}
+
+	fprintf(stderr, "Loaded\n");
+	fprintf(stderr,
+		"Read config:\n"
+		"\tlog_path=%s\n"
+		"\ttarget_path=%s\n"
+		"\tlisten_port=%u",
+		conf->log_path, conf->target_path, conf->listen_port);
+
+	return conf;
 }
 
 int get_file_md5(FILE *in, unsigned char *digest)

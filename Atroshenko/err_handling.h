@@ -26,8 +26,7 @@
 
 // Unified approach to error logging. If errno is set to one of macros above,
 // log_error() resolves error message itself, otherwise it delegates this job
-// to perror(const char *). Logs error to stderr in format:
-// <executable_name>
+// to perror(). Logs error to stderr in format:
 void log_error();
 
 #endif //VALIDATIONTASK_ERR_HANDLING_H

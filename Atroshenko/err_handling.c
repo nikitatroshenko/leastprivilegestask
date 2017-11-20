@@ -7,11 +7,13 @@
 #include <string.h>
 #include <errno.h>
 
-#ifndef EXECUTABLE_NAME
-#define EXECUTABLE_NAME "servicetask"
+#ifndef _EXECUTABLE_NAME
+#define _EXECUTABLE_NAME "servicetask"
 #endif
 
-#define EXECUTEBLE_NAME_LEN strlen(EXECUTABLE_NAME)
+#define EXECUTEBLE_NAME_LEN strlen(_EXECUTABLE_NAME)
+
+#define ERR_STRING_BUF_LEN 500
 
 // primitive error message lookup
 static const char *lookup_custom_error(int err) {
@@ -39,7 +41,7 @@ void log_error() {
 	int preserved_errno = errno;	// errno may be overwritten by snprintf
 
 	snprintf(err_msg, err_msg_len,
-		 err_format, EXECUTABLE_NAME, preserved_errno);
+		 err_format, _EXECUTABLE_NAME, preserved_errno);
 
 	if (preserved_errno & CUSTOM_ERR_MASK) {
 		fprintf(stderr, "%s: %s\n", err_msg,
