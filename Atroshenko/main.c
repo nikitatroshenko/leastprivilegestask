@@ -56,6 +56,10 @@ int main(int argc, char **argv)
 			file_change_handling_routine,
 			&routine_data);
 
+	if_startup_info.port_number = conf->listen_port;
+	// todo: temporary null
+	if_startup_info.action = NULL;
+	if_startup_info.action_ctx = NULL;
 
 	start_listen_connections(&if_startup_info);
 
@@ -103,7 +107,7 @@ struct configuration *resolve_config(int argc, char **argv)
 		"Read config:\n"
 		"\tlog_path=%s\n"
 		"\ttarget_path=%s\n"
-		"\tlisten_port=%u",
+		"\tlisten_port=%u\n",
 		conf->log_path, conf->target_path, conf->listen_port);
 
 	return conf;

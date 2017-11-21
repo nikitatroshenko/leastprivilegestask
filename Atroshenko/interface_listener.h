@@ -9,7 +9,7 @@ struct interface_listener_ctx {
 typedef void(*server_action)(struct interface_listener_ctx *);
 
 struct listener_startup_info {
-	short port_number;
+	unsigned int port_number;
 	server_action action;
 	void *action_ctx;
 };

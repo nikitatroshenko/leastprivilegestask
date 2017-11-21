@@ -80,12 +80,17 @@ void *listen_routine(
 
 void *connection_handler_start_routine(void *arg)
 {
-	struct interface_listener_ctx iface_ctx =
-			*(struct interface_listener_ctx *) arg;
+	struct interface_listener_ctx *iface_ctx 
+			= (struct interface_listener_ctx *) arg;
+	int cli_sfd = iface_ctx->cli_sfd;
+	char buf[16];
 
-
+	// todo: temp logic
+	read(cli_sfd, buf, 16);
+	buf[15] = 0;
+	printf("%s\n", buf);
 	
-	close(iface_ctx.cli_sfd);
+	close(iface_ctx->cli_sfd);
 
 	return NULL;
 }
@@ -101,5 +106,5 @@ void create_server_activity(
 	iface_ctx.cli_sfd = cli_sfd;
 
 	pthread_create(&tid, NULL, connection_handler_start_routine,
-			NULL);
+			&iface_ctx);
 }

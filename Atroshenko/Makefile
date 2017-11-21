@@ -10,6 +10,7 @@ all: cmake_build
 demo_files:
 	echo log_path=`pwd`/service_log > $(INI_FILE)
 	echo target_path=`pwd`/target >> $(INI_FILE)
+	echo listen_port=12345 >> $(INI_FILE)
 	touch target
 	touch service_log
 

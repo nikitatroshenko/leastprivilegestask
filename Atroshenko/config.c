@@ -82,6 +82,8 @@ struct configuration *load_config(const char *path)
 	else if (rc != 0)
 		errno = EFAILINIREAD;
 
+	// todo free allocated conf in erroneous case
+
 	return (rc != 0) ? NULL : conf;
 }
 
