@@ -97,12 +97,12 @@ void add_async_signal_handler(struct listen_ctx *ctx)
 	fcntl(ctx->inotify_fd, F_SETOWN, getpid());
 	fcntl(ctx->inotify_fd, F_SETSIG, SIGIO);
 
-	sigaction(SIGINT, NULL, &old_action);
-	if (old_action.sa_handler != SIG_IGN)
-		sigaction(SIGINT, &sig_action, NULL);
-	sigaction(SIGTERM, NULL, &old_action);
-	if (old_action.sa_handler != SIG_IGN)
-		sigaction(SIGTERM, &sig_action, NULL);
+	// sigaction(SIGINT, NULL, &old_action);
+	// if (old_action.sa_handler != SIG_IGN)
+	// 	sigaction(SIGINT, &sig_action, NULL);
+	// sigaction(SIGTERM, NULL, &old_action);
+	// if (old_action.sa_handler != SIG_IGN)
+	// 	sigaction(SIGTERM, &sig_action, NULL);
 	sigaction(SIGIO, NULL, &old_action);
 	if (old_action.sa_handler != SIG_IGN)
 		sigaction(SIGIO, &sig_action, NULL);

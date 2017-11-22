@@ -1,3 +1,7 @@
+#include "interface_listener.h"
+#include "err_handling.h"
+#include "signal.h"
+
 #include <pthread.h>
 #include <netinet/in.h>
 #include <stdio.h>
@@ -6,8 +10,6 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <unistd.h>
-#include "interface_listener.h"
-#include "err_handling.h"
 
 #ifndef _INTERFACE_LISTENER_BACKLOG
 #define _INTERFACE_LISTENER_BACKLOG 5
@@ -20,6 +22,14 @@ static void create_server_activity(
 static void *listen_routine(
 		int serv_sfd,
 		const struct listener_startup_info *startup_info);
+
+static void sigint_handler(int signum, void *data)
+{
+	int serv_sfd = *((int *) data);
+
+	printf("Closing server socket\n");
+	close(serv_sfd);
+}
 
 void start_listen_connections(const struct listener_startup_info *startup_info)
 {
@@ -61,36 +71,48 @@ void *listen_routine(
 	socklen_t cli_addr_len;
 	struct sockaddr_in cli_addr;
 
+	add_signal_handler(SIGINT, sigint_handler, &serv_sfd);
+
 	while (1) {
 		cli_addr_len = sizeof(struct sockaddr_in);
 		cli_sfd = accept(serv_sfd, (struct sockaddr *) &cli_addr,
 				&cli_addr_len);
+
 		if (cli_sfd == -1) {
 			perror("accept");
-			return NULL;
+			break;
 		}
 		
-		fprintf(stderr, "CLient connected!\n");
+		fprintf(stderr, "Client connected!\n");
 		create_server_activity(
 				cli_sfd,
 				startup_info);
-		/* do_server_activity(cli_sfd); */
 	}
+
+	return NULL;
 }
+
+struct connection_handler_args {
+	struct interface_listener_ctx *ctx;
+	server_action action;
+};
 
 void *connection_handler_start_routine(void *arg)
 {
-	struct interface_listener_ctx *iface_ctx 
-			= (struct interface_listener_ctx *) arg;
+	struct connection_handler_args *args
+			= (struct connection_handler_args *) arg;
+	struct interface_listener_ctx *iface_ctx = args->ctx;
 	int cli_sfd = iface_ctx->cli_sfd;
-	char buf[16];
 
-	// todo: temp logic
-	read(cli_sfd, buf, 16);
-	buf[15] = 0;
-	printf("%s\n", buf);
-	
+	printf("Before action\n");	
+	args->action(iface_ctx);
+	printf("After action\n");
+
+	/* free resources allocated after trhead start */
+	printf("Closing client fd\n");
 	close(iface_ctx->cli_sfd);
+	free(iface_ctx);
+	free(args);
 
 	return NULL;
 }
@@ -100,11 +122,13 @@ void create_server_activity(
 		const struct listener_startup_info *info)
 {
 	pthread_t tid;
-	struct interface_listener_ctx iface_ctx;
+	struct connection_handler_args *args = calloc(1, sizeof *args);
+	struct interface_listener_ctx *iface_ctx = calloc(1, sizeof *iface_ctx);
 
-	iface_ctx.action_ctx = info->action_ctx;
-	iface_ctx.cli_sfd = cli_sfd;
+	args->ctx = iface_ctx;
+	args->action = info->action;
+	iface_ctx->action_ctx = info->action_ctx;
+	iface_ctx->cli_sfd = cli_sfd;
 
-	pthread_create(&tid, NULL, connection_handler_start_routine,
-			&iface_ctx);
+	pthread_create(&tid, NULL, connection_handler_start_routine, args);
 }

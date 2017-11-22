@@ -5,11 +5,12 @@ set(CMAKE_C_STANDARD 90)
 
 set(SOURCE_FILES main.c
 				 config.c
+				 daemonize.c
 				 err_handling.c
 				 ini.c
-				 listen_changes.c
 				 interface_listener.c
-				 daemonize.c)
+				 listen_changes.c
+				 signal.c)	
 set(EXECUTABLE_NAME leastprivelegetask)
 add_executable(leastprivelegetask ${SOURCE_FILES})
 

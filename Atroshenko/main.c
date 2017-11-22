@@ -1,10 +1,10 @@
-#include "err_handling.h"
 #include "config.h"
 #include "daemonize.h"
-#include "listen_changes.h"
+#include "err_handling.h"
 #include "interface_listener.h"
+#include "listen_changes.h"
+#include "signal.h"
 
-#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <openssl/md5.h>
@@ -24,7 +24,7 @@ static struct configuration *resolve_config(int argc, char **argv);
 
 static void log_record(FILE *out, const char *record);
 static void file_change_handling_routine(void *data);
-static void iface_listener_routine(void *data);
+static void iface_listener_routine(struct interface_listener_ctx *iface_ctx);
 
 int main(int argc, char **argv)
 {
@@ -57,9 +57,8 @@ int main(int argc, char **argv)
 			&routine_data);
 
 	if_startup_info.port_number = conf->listen_port;
-	// todo: temporary null
-	if_startup_info.action = NULL;
-	if_startup_info.action_ctx = NULL;
+	if_startup_info.action = iface_listener_routine;
+	if_startup_info.action_ctx = (void *) 0x00000042;
 
 	start_listen_connections(&if_startup_info);
 
@@ -182,4 +181,9 @@ void file_change_handling_routine(void *data)
 	log_record(routine_data->log, digest_str);
 
 	fflush(routine_data->log);
+}
+
+void iface_listener_routine(struct interface_listener_ctx *iface_ctx)
+{
+	printf("Hello! new connection %p\n", iface_ctx->action_ctx);
 }
