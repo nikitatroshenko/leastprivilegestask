@@ -3,14 +3,15 @@ project(leastprivelegetask)
 
 set(CMAKE_C_STANDARD 90)
 
-set(SOURCE_FILES main.c
-				 config.c
-				 daemonize.c
-				 err_handling.c
-				 ini.c
-				 interface_listener.c
-				 listen_changes.c
-				 signal_queue.c)	
+set(SOURCE_FILES src/logger/main.c
+				 src/config.c
+				 src/daemonize.c
+				 src/err_handling.c
+				 src/ini.c
+				 src/interface_listener.c
+				 src/listen_changes.c
+				 src/signal_queue.c)
+include_directories(./include)
 set(EXECUTABLE_NAME leastprivelegetask)
 add_executable(leastprivelegetask ${SOURCE_FILES})
 
