@@ -11,3 +11,4 @@ add_executable(interface ${SOURCE_FILES})
 
 # Project configuration
 add_definitions(-D_EXECUTABLE_NAME="${EXECUTABLE_NAME}")
+add_definitions(-D_EDITOR_EXECUTABLE="/usr/bin/atroshenko_editor")
