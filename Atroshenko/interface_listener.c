@@ -1,6 +1,6 @@
 #include "interface_listener.h"
 #include "err_handling.h"
-#include "signal.h"
+#include "signal_queue.h"
 
 #include <pthread.h>
 #include <netinet/in.h>

@@ -3,7 +3,7 @@
 #include "err_handling.h"
 #include "interface_listener.h"
 #include "listen_changes.h"
-#include "signal.h"
+#include "signal_queue.h"
 
 #include <stdio.h>
 #include <stdlib.h>

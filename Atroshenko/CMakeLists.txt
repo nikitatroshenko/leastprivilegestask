@@ -10,7 +10,7 @@ set(SOURCE_FILES main.c
 				 ini.c
 				 interface_listener.c
 				 listen_changes.c
-				 signal.c)	
+				 signal_queue.c)	
 set(EXECUTABLE_NAME leastprivelegetask)
 add_executable(leastprivelegetask ${SOURCE_FILES})
 

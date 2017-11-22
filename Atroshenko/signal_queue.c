@@ -1,4 +1,4 @@
-#include "signal.h"
+#include "signal_queue.h"
 #include "err_handling.h"
 
 #include <signal.h>
