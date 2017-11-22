@@ -34,11 +34,11 @@ static const char *lookup_custom_error(int err) {
 }
 
 void log_error() {
+	int preserved_errno = errno;	// errno may be overwritten by snprintf
 	const char *err_format = "%s error (0x%08x)";
 	const size_t err_msg_len = EXECUTEBLE_NAME_LEN
 				   + strlen(err_format) + 8;
 	char err_msg[err_msg_len];
-	int preserved_errno = errno;	// errno may be overwritten by snprintf
 
 	snprintf(err_msg, err_msg_len,
 		 err_format, _EXECUTABLE_NAME, preserved_errno);
