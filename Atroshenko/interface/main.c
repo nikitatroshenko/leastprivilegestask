@@ -174,5 +174,5 @@ int call_editor(struct editor_args *args, int force)
 }
 
 #else
-#error implemented for UNIX systems only
+#error implemented for UNIX systems only (for now)
 #endif
